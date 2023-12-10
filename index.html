@@ -1,0 +1,171 @@
+<div id="gallery"
+     x-data="initGallery()"
+     x-init="init($el)"
+     @resize.window.debounce="isMobile = checkIsMobileResolution()"
+     @touchstart.window="galleryActions()"
+     @mousedown.window="galleryActions()"
+     @mousemove.window="animate360()"
+     @touchmove.window="animate360()"
+    :class="{'fullscreen' : fullscreen}">
+    <template x-for="(image, index) in images" :key="index">
+        <div :class="{'active' : active === index}"
+             :data-slide="index"
+             :data-type="image.type"
+             :data-method="index === 0 ? 'picture' : 'background'">
+            <template x-if="index === 0 && image.type === 'image'">
+                <picture>
+                    <img :src="!isMobile && fullscreen ? image.full : image.img"
+                         :alt="image.caption"
+                         :title="image.caption"
+                         :width="!isMobile && fullscreen ? fullImgMdWidth : imgMdWidth"
+                         :height="!isMobile && fullscreen ? fullImgMdHeight : imgMdHeight">
+                </picture>
+            </template>
+            <template x-if="image.type === 360">
+                <div data-type="screen"
+                     :class="{'active' : dragging}"
+                     @mouseup.window="dragging = false"
+                     @touchend.window="dragging = false">
+                </div>
+            </template>
+            <template x-if="image.type === 360">
+                <span class="gg-tap-single"
+                      :class="{'active' : dragging}"></span>
+            </template>
+        </div>
+    </template>
+    <nav x-if="images.length <= 1">
+        <template x-for="(image, index) in images" :key="index">
+            <span :class="{'active' : active === index}"
+                  @click.prevent="setActiveSlide($el, index, image)"
+                  :data-image="index"
+                  :data-type="image.type"></span>
+        </template>
+    </nav>
+    <span x-show="!checkIsMobileResolution()"
+          @click.prevent="switchFullScreenImages(images)"
+          data-type="fullscreen"
+          :class="{
+            'gg-maximize-alt' : !fullscreen,
+            'gg-close-r' : fullscreen
+          }">
+    </span>
+</div>
+
+<script data-name="gallery">
+    function initGallery() {
+        return {
+            active: 0,
+            fullscreen: false,
+            imgMdWidth: 422,
+            imgMdHeight: 422,
+            fullImgMdWidth: 'auto',
+            fullImgMdHeight: '100%',
+            images: [{"thumb":"https:\/\/www.chromeburner.com\/media\/catalog\/product\/cache\/7e9378368e7693da2b9b860731936bfc\/_\/s\/_scorpion-exo-hx1-nostalgia-cement-grey-black-red_frontpage.jpg","img":"https:\/\/www.chromeburner.com\/media\/catalog\/product\/cache\/1edb22ea9a482637ef3a9d592f2e211a\/_\/s\/_scorpion-exo-hx1-nostalgia-cement-grey-black-red_frontpage.jpg","full":"https:\/\/www.chromeburner.com\/media\/catalog\/product\/cache\/97fc6b8ca94e841ab8e2712f202bbd0e\/_\/s\/_scorpion-exo-hx1-nostalgia-cement-grey-black-red_frontpage.jpg","caption":"Scorpion EXO-HX1 Nostalgia Cement Grey-Black-Red Full Face Helmet","position":"4","isMain":true,"type":"image","videoUrl":null},{"thumb":"https:\/\/www.chromeburner.com\/media\/catalog\/product\/cache\/7e9378368e7693da2b9b860731936bfc\/S\/c\/Scorpion-exo-hx1-nostalgia-cement-grey-black-red.01.jpg","img":"https:\/\/www.chromeburner.com\/media\/catalog\/product\/cache\/1edb22ea9a482637ef3a9d592f2e211a\/S\/c\/Scorpion-exo-hx1-nostalgia-cement-grey-black-red.01.jpg","full":"https:\/\/www.chromeburner.com\/media\/catalog\/product\/cache\/97fc6b8ca94e841ab8e2712f202bbd0e\/S\/c\/Scorpion-exo-hx1-nostalgia-cement-grey-black-red.01.jpg","caption":"Scorpion EXO-HX1 Nostalgia Cement Grey-Black-Red Full Face Helmet","position":"5","isMain":false,"type":"image","videoUrl":null},{"thumb":"https:\/\/www.chromeburner.com\/media\/catalog\/product\/cache\/7e9378368e7693da2b9b860731936bfc\/S\/c\/Scorpion-exo-hx1-nostalgia-cement-grey-black-red.35.jpg","img":"https:\/\/www.chromeburner.com\/media\/catalog\/product\/cache\/1edb22ea9a482637ef3a9d592f2e211a\/S\/c\/Scorpion-exo-hx1-nostalgia-cement-grey-black-red.35.jpg","full":"https:\/\/www.chromeburner.com\/media\/catalog\/product\/cache\/97fc6b8ca94e841ab8e2712f202bbd0e\/S\/c\/Scorpion-exo-hx1-nostalgia-cement-grey-black-red.35.jpg","caption":"Scorpion EXO-HX1 Nostalgia Cement Grey-Black-Red Full Face Helmet","position":"6","isMain":false,"type":"image","videoUrl":null},{"thumb":"https:\/\/www.chromeburner.com\/media\/catalog\/product\/cache\/7e9378368e7693da2b9b860731936bfc\/S\/c\/Scorpion-exo-hx1-nostalgia-cement-grey-black-red.29.jpg","img":"https:\/\/www.chromeburner.com\/media\/catalog\/product\/cache\/1edb22ea9a482637ef3a9d592f2e211a\/S\/c\/Scorpion-exo-hx1-nostalgia-cement-grey-black-red.29.jpg","full":"https:\/\/www.chromeburner.com\/media\/catalog\/product\/cache\/97fc6b8ca94e841ab8e2712f202bbd0e\/S\/c\/Scorpion-exo-hx1-nostalgia-cement-grey-black-red.29.jpg","caption":"Scorpion EXO-HX1 Nostalgia Cement Grey-Black-Red Full Face Helmet","position":"7","isMain":false,"type":"image","videoUrl":null},{"thumb":"https:\/\/www.chromeburner.com\/media\/catalog\/product\/cache\/7e9378368e7693da2b9b860731936bfc\/S\/c\/Scorpion-exo-hx1-nostalgia-cement-grey-black-red.19.jpg","img":"https:\/\/www.chromeburner.com\/media\/catalog\/product\/cache\/1edb22ea9a482637ef3a9d592f2e211a\/S\/c\/Scorpion-exo-hx1-nostalgia-cement-grey-black-red.19.jpg","full":"https:\/\/www.chromeburner.com\/media\/catalog\/product\/cache\/97fc6b8ca94e841ab8e2712f202bbd0e\/S\/c\/Scorpion-exo-hx1-nostalgia-cement-grey-black-red.19.jpg","caption":"Scorpion EXO-HX1 Nostalgia Cement Grey-Black-Red Full Face Helmet","position":"8","isMain":false,"type":"image","videoUrl":null},{"thumb":"https:\/\/www.chromeburner.com\/media\/catalog\/product\/cache\/7e9378368e7693da2b9b860731936bfc\/S\/c\/Scorpion-exo-hx1-nostalgia-cement-grey-black-red.11.jpg","img":"https:\/\/www.chromeburner.com\/media\/catalog\/product\/cache\/1edb22ea9a482637ef3a9d592f2e211a\/S\/c\/Scorpion-exo-hx1-nostalgia-cement-grey-black-red.11.jpg","full":"https:\/\/www.chromeburner.com\/media\/catalog\/product\/cache\/97fc6b8ca94e841ab8e2712f202bbd0e\/S\/c\/Scorpion-exo-hx1-nostalgia-cement-grey-black-red.11.jpg","caption":"Scorpion EXO-HX1 Nostalgia Cement Grey-Black-Red Full Face Helmet","position":"9","isMain":false,"type":"image","videoUrl":null}],
+            images360: ["https:\/\/www.chromeburner.com\/media\/magic360\/s\/c\/Scorpion-exo-hx1-nostalgia-cement-grey-black-red.01.jpg","https:\/\/www.chromeburner.com\/media\/magic360\/s\/c\/Scorpion-exo-hx1-nostalgia-cement-grey-black-red.02.jpg","https:\/\/www.chromeburner.com\/media\/magic360\/s\/c\/Scorpion-exo-hx1-nostalgia-cement-grey-black-red.03.jpg","https:\/\/www.chromeburner.com\/media\/magic360\/s\/c\/Scorpion-exo-hx1-nostalgia-cement-grey-black-red.04.jpg","https:\/\/www.chromeburner.com\/media\/magic360\/s\/c\/Scorpion-exo-hx1-nostalgia-cement-grey-black-red.05.jpg","https:\/\/www.chromeburner.com\/media\/magic360\/s\/c\/Scorpion-exo-hx1-nostalgia-cement-grey-black-red.06.jpg","https:\/\/www.chromeburner.com\/media\/magic360\/s\/c\/Scorpion-exo-hx1-nostalgia-cement-grey-black-red.07.jpg","https:\/\/www.chromeburner.com\/media\/magic360\/s\/c\/Scorpion-exo-hx1-nostalgia-cement-grey-black-red.08.jpg","https:\/\/www.chromeburner.com\/media\/magic360\/s\/c\/Scorpion-exo-hx1-nostalgia-cement-grey-black-red.09.jpg","https:\/\/www.chromeburner.com\/media\/magic360\/s\/c\/Scorpion-exo-hx1-nostalgia-cement-grey-black-red.10.jpg","https:\/\/www.chromeburner.com\/media\/magic360\/s\/c\/Scorpion-exo-hx1-nostalgia-cement-grey-black-red.11.jpg","https:\/\/www.chromeburner.com\/media\/magic360\/s\/c\/Scorpion-exo-hx1-nostalgia-cement-grey-black-red.12.jpg","https:\/\/www.chromeburner.com\/media\/magic360\/s\/c\/Scorpion-exo-hx1-nostalgia-cement-grey-black-red.13.jpg","https:\/\/www.chromeburner.com\/media\/magic360\/s\/c\/Scorpion-exo-hx1-nostalgia-cement-grey-black-red.14.jpg","https:\/\/www.chromeburner.com\/media\/magic360\/s\/c\/Scorpion-exo-hx1-nostalgia-cement-grey-black-red.15.jpg","https:\/\/www.chromeburner.com\/media\/magic360\/s\/c\/Scorpion-exo-hx1-nostalgia-cement-grey-black-red.16.jpg","https:\/\/www.chromeburner.com\/media\/magic360\/s\/c\/Scorpion-exo-hx1-nostalgia-cement-grey-black-red.17.jpg","https:\/\/www.chromeburner.com\/media\/magic360\/s\/c\/Scorpion-exo-hx1-nostalgia-cement-grey-black-red.18.jpg","https:\/\/www.chromeburner.com\/media\/magic360\/s\/c\/Scorpion-exo-hx1-nostalgia-cement-grey-black-red.19.jpg","https:\/\/www.chromeburner.com\/media\/magic360\/s\/c\/Scorpion-exo-hx1-nostalgia-cement-grey-black-red.20.jpg","https:\/\/www.chromeburner.com\/media\/magic360\/s\/c\/Scorpion-exo-hx1-nostalgia-cement-grey-black-red.21.jpg","https:\/\/www.chromeburner.com\/media\/magic360\/s\/c\/Scorpion-exo-hx1-nostalgia-cement-grey-black-red.22.jpg","https:\/\/www.chromeburner.com\/media\/magic360\/s\/c\/Scorpion-exo-hx1-nostalgia-cement-grey-black-red.23.jpg","https:\/\/www.chromeburner.com\/media\/magic360\/s\/c\/Scorpion-exo-hx1-nostalgia-cement-grey-black-red.24.jpg","https:\/\/www.chromeburner.com\/media\/magic360\/s\/c\/Scorpion-exo-hx1-nostalgia-cement-grey-black-red.25.jpg","https:\/\/www.chromeburner.com\/media\/magic360\/s\/c\/Scorpion-exo-hx1-nostalgia-cement-grey-black-red.26.jpg","https:\/\/www.chromeburner.com\/media\/magic360\/s\/c\/Scorpion-exo-hx1-nostalgia-cement-grey-black-red.27.jpg","https:\/\/www.chromeburner.com\/media\/magic360\/s\/c\/Scorpion-exo-hx1-nostalgia-cement-grey-black-red.28.jpg","https:\/\/www.chromeburner.com\/media\/magic360\/s\/c\/Scorpion-exo-hx1-nostalgia-cement-grey-black-red.29.jpg","https:\/\/www.chromeburner.com\/media\/magic360\/s\/c\/Scorpion-exo-hx1-nostalgia-cement-grey-black-red.30.jpg","https:\/\/www.chromeburner.com\/media\/magic360\/s\/c\/Scorpion-exo-hx1-nostalgia-cement-grey-black-red.31.jpg","https:\/\/www.chromeburner.com\/media\/magic360\/s\/c\/Scorpion-exo-hx1-nostalgia-cement-grey-black-red.32.jpg","https:\/\/www.chromeburner.com\/media\/magic360\/s\/c\/Scorpion-exo-hx1-nostalgia-cement-grey-black-red.33.jpg","https:\/\/www.chromeburner.com\/media\/magic360\/s\/c\/Scorpion-exo-hx1-nostalgia-cement-grey-black-red.34.jpg","https:\/\/www.chromeburner.com\/media\/magic360\/s\/c\/Scorpion-exo-hx1-nostalgia-cement-grey-black-red.35.jpg","https:\/\/www.chromeburner.com\/media\/magic360\/s\/c\/Scorpion-exo-hx1-nostalgia-cement-grey-black-red.36.jpg"],
+            hasImages360: true,
+            isMobile: false,
+            magic360Url: "https://www.chromeburner.com/static/version1701960996/frontend/ChromeBurner/default/en_US/ChromeBurner_Magicproduct360/js/alpine-product.js",
+            is360Clicked: false,
+            dragging: false,
+            frame360: false,
+            scroll: false,
+            init(element) {
+                if (this.hasImages360) {
+                    this.images.push({
+                        thumb: 'https://www.chromeburner.com/static/version1701960996/frontend/ChromeBurner/default/en_US/ChromeBurner_Magicproduct360/images/360.svg',
+                        type: 360
+                    })
+                    this.frame360 = 0
+                }
+                this.$nextTick(() => {
+                    if (this.images.length === 0) return
+                    let navigation = element.querySelector('nav'),
+                        skip = false,
+                        isMobileResolution = this.checkIsMobileResolution()
+                    this.images.forEach(function (image, index) {
+                        if(isMobileResolution && image.type === 'image') skip = true
+                        if(isMobileResolution && image.type === 360) skip = false
+                        if (skip === false) {
+                            let thumb = navigation.querySelector('[data-image="' + index + '"]')
+                            thumb.style.backgroundImage = "url('" + image.thumb + "')"
+                        }
+                      })
+                })
+            },
+            setActiveSlide(component, image, data) {
+                if (this.images.length === image) image = 0
+                if (image > 0) {
+                    let targetSlide = null
+                    component.dataset.slide
+                        ? targetSlide = component.parentNode.querySelector('[data-slide="' + image + '"]')
+                        : targetSlide = component.querySelector('[data-slide="' + image + '"]')
+                    if (!targetSlide.dataset.loaded) {
+                        if (data.type !== 360) {
+                            targetSlide.style.backgroundImage = 'url(' + data.full + ')'
+                            targetSlide.dataset.loaded = true
+                        }
+                        if (data.type === 360) this.render360Frames(targetSlide)
+                    }
+                }
+                this.active = image
+            },
+            galleryActions() {
+                let isValidNode = event.target.dataset.slide >= 0 || event.target.dataset.type === 'screen'
+                if (!isValidNode) return
+                let currentImage = event.target.dataset.slide,
+                    nextImage = Number(currentImage) + 1
+                if (event.target.dataset.type === 'image') {
+                    this.setActiveSlide(event.target, nextImage, this.images[nextImage])
+                    return
+                }
+                if (event.target.dataset.type === 'screen') {
+                    if (event.type === 'mousedown' || event.type === 'touchstart') this.dragging = true
+                }
+            },
+            render360Frames(slide) {
+                if (slide.dataset.type === '360' && !slide.dataset.loaded) {
+                    if (this.hasImages360) this.images360.forEach(function (image, index) {
+                        let imageContainer = document.createElement("div")
+                        imageContainer.style.backgroundImage = "url('" + image + "')"
+                        index === 0
+                            ? imageContainer.dataset.active = true
+                            : imageContainer.dataset.active = false
+                        imageContainer.dataset.frame = index
+                        slide.appendChild(imageContainer)
+                    })
+                    slide.dataset.loaded = true
+                }
+            },
+            animate360() {
+                if (!this.dragging) return
+                const previousScroll = this.scroll
+                let direction = false
+                this.scroll = event.x
+                this.scroll > previousScroll
+                    ? direction = 'right'
+                    : direction = 'left'
+                const currentFrame = this.$el.querySelector('[data-frame="' + this.frame360 + '"]')
+                this.frame360 >= 35
+                    ? this.frame360 = 0
+                    : this.frame360 = this.frame360 + 1
+                let nextFrame = this.$el.querySelector('[data-frame="' + this.frame360 + '"]')
+                currentFrame.dataset.active = false
+                nextFrame.dataset.active = true
+            },
+            checkIsMobileResolution() {
+                return window.outerWidth < 1024
+            },
+            switchFullScreenImages(images) {
+                this.fullscreen = !this.fullscreen
+                let backgroundElements = this.$el.querySelectorAll('[data-method="background"]'),
+                    imgPictureParent = this.$el.querySelector('[data-method="picture"]')
+                if (imgPictureParent) {
+                    let slideImageMaxHeight;
+                    slideImageMaxHeight = imgPictureParent.offsetHeight;
+                    imgPictureParent.querySelector('img').style.maxHeight = 'calc(100%)'
+                }
+            }
+        }
+    }
+</script>
