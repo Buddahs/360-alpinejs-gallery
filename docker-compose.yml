@@ -1,0 +1,14 @@
+version: '3.8'
+services:
+  threejs-app:
+    build:
+      context: ./threejs_app
+      # Dockerfile is implicitly Dockerfile in the context dir
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./threejs_app:/usr/src/app
+      # Mount the local threejs_app directory to the container's working directory
+      # This allows for live reloading on code changes if http-server supports it,
+      # or at least avoids rebuilding the image for every frontend change.
+    container_name: my-threejs-container
